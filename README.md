@@ -2,6 +2,8 @@
 
 A small, mobile-friendly place to share a gym routine. Built with React, TypeScript, and Vite, ready to import into Vercel.
 
+The site uses the selected **Training Club** design: warm ivory, forest green, terracotta details, self-hosted DM Serif Display and DM Sans, an open weekly timetable, and a large inline exercise viewer beside the timer. The header's empty Roblox-style gym is generated artwork. Select an exercise thumbnail or name to change the viewer, and open Exercise notes for its full guide. Still images are labeled explicitly; missing demonstrations have a visible pending state. The timetable becomes a compact day selector on phones.
+
 **The weekly split and set counts come from the routine owner.** Exercise choices, rep ranges, and rest times are provisional and can be corrected later. Four exercises have generated Bacon Hair still-image previews; animations and the remaining demonstrations are pending.
 
 ## Current weekly split
@@ -83,9 +85,10 @@ Import this GitHub repository in Vercel. Use the **Vite** framework preset, `npm
 src/App.tsx                       Weekly routine and exercise library
 src/data/routine.ts               Schedule, exercises, and demo media
 src/components/ExerciseDialog.tsx Exercise guide and media viewer
+src/components/ExerciseViewer.tsx Large inline selected-exercise viewer
 src/components/RestTimer.tsx      Rest timer controls
 src/lib/progress.ts               Week keys and saved set progress
 src/lib/timer.ts                  Countdown helpers
 src/styles.css                   Responsive styling
-public/                          Favicon and future local media
+public/                          Favicon, Bacon Hair stills, and gym hero image
 ```

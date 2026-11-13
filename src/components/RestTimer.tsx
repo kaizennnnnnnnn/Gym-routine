@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowCounterClockwise, Pause, Play, Timer } from '@phosphor-icons/react';
+import { ArrowCounterClockwise, Pause, Play } from '@phosphor-icons/react';
 import { formatTime, secondsUntil } from '../lib/timer';
 
 type TimerState = {
@@ -91,7 +91,7 @@ export function RestTimer({ request }: RestTimerProps) {
 
   return (
     <section className="timer-panel panel" aria-labelledby="rest-timer-title">
-      <h3 className="panel-label" id="rest-timer-title"><Timer size={19} aria-hidden="true" /> Rest timer</h3>
+      <h3 className="panel-label" id="rest-timer-title">Rest between sets</h3>
       <div className="timer-display" role="timer" aria-live="off" aria-label="Rest time remaining">
         {formatTime(timer.remainingMs / 1000)}
       </div>
