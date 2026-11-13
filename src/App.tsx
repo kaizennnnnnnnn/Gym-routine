@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpRightIcon, BarbellIcon, BookOpenIcon, CalendarBlankIcon, CheckIcon, CheckCircleIcon, ClockIcon, CoffeeIcon, CopyIcon, InfoIcon, MagnifyingGlassIcon, PlayIcon, ShareNetworkIcon, SparkleIcon, TimerIcon } from '@phosphor-icons/react';
+import { ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon, ArrowUpRightIcon, BarbellIcon, BookOpenIcon, CalendarBlankIcon, CheckIcon, CheckCircleIcon, ClockIcon, CoffeeIcon, CopyIcon, ImageIcon, InfoIcon, MagnifyingGlassIcon, PlayIcon, ShareNetworkIcon, SparkleIcon, TimerIcon } from '@phosphor-icons/react';
 import { exerciseLibrary, routineMeta, weekPlan } from './data/routine';
 import type { Exercise } from './data/routine';
 import { countCompletedSets, countTotalSets, getStorageKey, getWeekKey, sanitizeProgress, toggleSet } from './lib/progress';
@@ -41,12 +41,12 @@ function ExerciseCard({ exercise, index, completed, onToggle, onOpen, onRest }: 
     <article className={`exercise-card ${allDone ? 'is-complete' : ''}`}>
       <div className="exercise-card-top">
         <button className="exercise-visual" onClick={onOpen} aria-label={`View ${exercise.name} details`}>
-          <BarbellIcon size={38} weight="light" aria-hidden="true" />
-          <span className="mini-play"><PlayIcon size={10} weight="fill" aria-hidden="true" /></span>
+          {exercise.media?.kind === 'image' ? <img src={exercise.media.src} alt="" loading="lazy" /> : <BarbellIcon size={38} weight="light" aria-hidden="true" />}
+          <span className="mini-play">{exercise.media?.kind === 'image' ? <ImageIcon size={10} aria-hidden="true" /> : <PlayIcon size={10} weight="fill" aria-hidden="true" />}</span>
         </button>
         <div className="exercise-name">
           <span className="exercise-number">EXERCISE {String(index + 1).padStart(2, '0')}</span>
-          <h3><button onClick={onOpen}>{exercise.name}</button></h3>
+          <h4><button onClick={onOpen}>{exercise.name}</button></h4>
           <p>{exercise.muscleGroup}<span aria-hidden="true"> / </span>{exercise.equipment}</p>
         </div>
         <button className="icon-button exercise-open" onClick={onOpen} aria-label={`Open ${exercise.name} guide`}>
@@ -84,6 +84,10 @@ function WeekView({ start, initialIndex, onWeekChange, onOpen }: { start: Date; 
   const workouts = weekPlan.filter((item) => item.type === 'workout');
   const completedDays = workouts.filter((item) => countCompletedSets(item, progress) === countTotalSets(item)).length;
   const nextDay = Array.from({ length: 7 }, (_, i) => weekPlan[(selectedIndex + i + 1) % 7]).find((item) => item.type === 'workout');
+  const muscleGroups = [...new Set(day.exercises.map((item) => item.muscleGroup))];
+  const exerciseGroups = day.groupExercisesByMuscle === false
+    ? [{ name: day.title, exercises: day.exercises }]
+    : muscleGroups.map((name) => ({ name, exercises: day.exercises.filter((item) => item.muscleGroup === name) }));
 
   useEffect(() => {
     try { localStorage.setItem(storageKey, JSON.stringify(progress)); } catch { setStorageAvailable(false); }
@@ -133,7 +137,7 @@ function WeekView({ start, initialIndex, onWeekChange, onOpen }: { start: Date; 
             return <button key={item.id} className={`day-button ${index === selectedIndex ? 'selected' : ''} ${item.type === 'rest' ? 'rest-day' : ''}`} aria-pressed={index === selectedIndex} aria-label={`${item.label}, ${item.title}${isCurrentWeek && index === todayIndex ? ', today' : ''}`} onClick={() => selectDay(index)}>
               <div className="day-top"><span>{item.shortLabel}</span>{isCurrentWeek && index === todayIndex ? <span className="today-dot" aria-label="Today" /> : null}{done ? <CheckCircleIcon size={14} weight="fill" aria-label="Workout completed" /> : null}</div>
               <span className="day-date">{dayDate(start, index).getDate()}</span>
-              <div className="day-bottom">{item.type === 'rest' ? <CoffeeIcon size={15} aria-hidden="true" /> : <BarbellIcon size={15} aria-hidden="true" />}<span>{item.type === 'rest' ? 'Rest' : item.title}</span></div>
+              <div className="day-bottom">{item.type === 'rest' ? <CoffeeIcon size={15} aria-hidden="true" /> : <BarbellIcon size={15} aria-hidden="true" />}<span>{item.shortTitle}</span></div>
             </button>;
           })}
         </div>
@@ -147,9 +151,14 @@ function WeekView({ start, initialIndex, onWeekChange, onOpen }: { start: Date; 
           </div>
 
           {day.type === 'workout' ? <>
-            <div className="workout-meta"><span><BarbellIcon size={16} aria-hidden="true" />{day.exercises.length} exercises</span><span><ClockIcon size={16} aria-hidden="true" />~{day.durationMinutes} min</span><span className={complete ? 'completion-text' : ''}><CheckCircleIcon size={16} aria-hidden="true" />{completedSets}/{totalSets} sets</span></div>
+            <div className="workout-meta"><span><BarbellIcon size={16} aria-hidden="true" />{day.exercises.length} exercises</span>{day.durationMinutes !== null && day.durationMinutes > 0 && <span><ClockIcon size={16} aria-hidden="true" />~{day.durationMinutes} min</span>}<span className={complete ? 'completion-text' : ''}><CheckCircleIcon size={16} aria-hidden="true" />{completedSets}/{totalSets} sets</span></div>
             <div className="exercise-list" ref={exerciseList}>
-              {day.exercises.map((exercise, index) => <ExerciseCard key={`${day.id}:${exercise.id}`} exercise={exercise} index={index} completed={progress[day.id]?.[exercise.id] ?? Array(exercise.sets).fill(false)} onToggle={(set) => toggle(exercise, set)} onOpen={() => onOpen(exercise)} onRest={() => startRest(exercise.restSeconds)} />)}
+              {exerciseGroups.map(({ name, exercises: groupExercises }) => {
+                return <section className="exercise-group" key={name} aria-label={`${name} exercises`}>
+                  <div className="exercise-group-heading"><h3>{name}</h3><span>{groupExercises.reduce((total, item) => total + item.sets, 0)} working sets</span></div>
+                  {groupExercises.map((exercise) => <ExerciseCard key={`${day.id}:${exercise.id}`} exercise={exercise} index={day.exercises.indexOf(exercise)} completed={progress[day.id]?.[exercise.id] ?? Array(exercise.sets).fill(false)} onToggle={(set) => toggle(exercise, set)} onOpen={() => onOpen(exercise)} onRest={() => startRest(exercise.restSeconds)} />)}
+                </section>;
+              })}
             </div>
             <div className="workout-footer"><span><CheckCircleIcon size={15} aria-hidden="true" />{storageAvailable ? 'Progress saved on this device' : 'Progress is temporary. Browser storage is unavailable.'}</span><button className="text-button" onClick={() => setResetRequested(true)} disabled={completedSets === 0}>Reset day</button></div>
           </> : <div className="recovery-panel">
@@ -162,7 +171,6 @@ function WeekView({ start, initialIndex, onWeekChange, onOpen }: { start: Date; 
               if (nextIndex <= selectedIndex) onWeekChange(1, nextIndex);
               else selectDay(nextIndex);
             }}>View next workout<ArrowRightIcon size={17} aria-hidden="true" /></button>}
-            {routineMeta.isSample && <div className="recovery-note"><InfoIcon size={16} aria-hidden="true" /><span>Sample rest day. Your schedule is still to come.</span></div>}
           </div>}
         </section>
 
@@ -189,10 +197,10 @@ function ExerciseLibrary({ onOpen }: { onOpen: (exercise: Exercise) => void }) {
   const groups = ['All', ...new Set(exerciseLibrary.map((exercise) => exercise.muscleGroup))];
   const filtered = exerciseLibrary.filter((exercise) => (filter === 'All' || exercise.muscleGroup === filter) && `${exercise.name} ${exercise.equipment} ${exercise.muscleGroup}`.toLowerCase().includes(query.toLowerCase().trim()));
   return <section className="library" aria-labelledby="library-title">
-    <div className="library-heading"><div><h2 id="library-title">The exercise library<span className="heading-period">.</span></h2><p>{routineMeta.isSample ? 'Every movement, in one place. Demonstrations are coming with your routine.' : 'A guide for every movement in your routine.'}</p></div><label className="search-field"><MagnifyingGlassIcon size={19} aria-hidden="true" /><input type="search" aria-label="Search exercises" placeholder="Find an exercise…" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div>
+    <div className="library-heading"><div><h2 id="library-title">The exercise library<span className="heading-period">.</span></h2><p>{routineMeta.hasPlaceholderExercises ? 'Placeholder exercise choices for your confirmed weekly split.' : 'A guide for every movement in your routine.'}</p></div><label className="search-field"><MagnifyingGlassIcon size={19} aria-hidden="true" /><input type="search" aria-label="Search exercises" placeholder="Find an exercise…" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div>
     <div className="library-filters" aria-label="Filter by muscle group">{groups.map((group) => <button key={group} aria-pressed={group === filter} className={group === filter ? 'active' : ''} onClick={() => setFilter(group)}>{group}</button>)}</div>
-    <p className="library-count" role="status">{filtered.length} {routineMeta.isSample ? 'sample ' : ''}{filtered.length === 1 ? 'exercise' : 'exercises'}</p>
-    <div className="library-grid">{filtered.map((exercise) => <button key={exercise.id} className="library-card" onClick={() => onOpen(exercise)}><div className="library-art"><BarbellIcon size={64} weight="light" aria-hidden="true" /><span className="library-demo"><PlayIcon size={12} weight="fill" aria-hidden="true" />{exercise.media ? 'View demonstration' : 'Demo pending'}</span></div><div className="library-card-content"><span>{exercise.muscleGroup}</span><h3>{exercise.name}</h3><p>{exercise.equipment}<ArrowUpRightIcon size={19} aria-hidden="true" /></p></div></button>)}</div>
+    <p className="library-count" role="status">{filtered.length} {routineMeta.hasPlaceholderExercises ? 'provisional ' : ''}{filtered.length === 1 ? 'exercise' : 'exercises'}</p>
+    <div className="library-grid">{filtered.map((exercise) => <button key={exercise.id} className="library-card" onClick={() => onOpen(exercise)}><div className={`library-art ${exercise.media?.kind === 'image' ? 'has-preview' : ''}`}>{exercise.media?.kind === 'image' ? <img src={exercise.media.src} alt="" loading="lazy" /> : <BarbellIcon size={64} weight="light" aria-hidden="true" />}<span className="library-demo">{exercise.media?.kind === 'image' ? <ImageIcon size={12} aria-hidden="true" /> : <PlayIcon size={12} weight="fill" aria-hidden="true" />}{exercise.media?.kind === 'image' ? 'Bacon Hair still image' : exercise.media ? 'View demonstration' : 'Demo pending'}</span></div><div className="library-card-content"><span>{exercise.muscleGroup}</span><h3>{exercise.name}</h3><p>{exercise.equipment}<ArrowUpRightIcon size={19} aria-hidden="true" /></p></div></button>)}</div>
     {filtered.length === 0 && <div className="empty-state"><MagnifyingGlassIcon size={35} weight="light" aria-hidden="true" /><h3>No exercises found</h3><p>Try a different name, muscle group, or piece of equipment.</p><button className="button button-dark" onClick={() => { setQuery(''); setFilter('All'); }}>Clear filters</button></div>}
   </section>;
 }
@@ -240,7 +248,7 @@ export default function App() {
 
       <main id="main">
         <div className="page-intro"><div><div className="intro-kicker">A GOOD WEEK STARTS WITH A PLAN</div><h1>Your training,<br /><span>laid out.</span></h1><p>A little structure. A lot less guessing. One set at a time.</p></div><div className="intro-aside"><span className="intro-stamp"><BarbellIcon size={44} weight="light" aria-hidden="true" /></span><p>Your routine.<br />Your pace.<br /><strong>Let’s get to it.<ArrowDownIcon size={16} aria-hidden="true" /></strong></p></div></div>
-        {routineMeta.isSample && <div className="sample-banner"><InfoIcon size={18} aria-hidden="true" /><p><strong>A preview of what’s to come.</strong> You’re viewing a sample routine. Your exercises, schedule, and demos are coming soon.</p><span>Sample plan</span></div>}
+        {routineMeta.hasPlaceholderExercises && <div className="sample-banner"><InfoIcon size={18} aria-hidden="true" /><p><strong>Your split is set.</strong> Exercise choices, rep ranges and rest times are placeholders for you to correct.</p><span>Draft exercises</span></div>}
         {page === 'week' ? <WeekView key={currentWeek} start={start} initialIndex={preferredDay} onWeekChange={changeWeek} onOpen={setExercise} /> : <ExerciseLibrary onOpen={setExercise} />}
       </main>
 

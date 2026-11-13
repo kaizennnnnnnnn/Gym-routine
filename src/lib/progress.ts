@@ -1,3 +1,4 @@
+import { routineMeta } from '../data/routine';
 import type { DayPlan } from '../data/routine';
 
 export type Progress = Record<string, Record<string, boolean[]>>;
@@ -11,7 +12,7 @@ export function getWeekKey(date = new Date()): string {
 }
 
 export function getStorageKey(date = new Date()): string {
-  return `gym-routine:progress:v1:${getWeekKey(date)}`;
+  return `gym-routine:progress:${routineMeta.progressVersion}:${getWeekKey(date)}`;
 }
 
 function record(value: unknown): Record<string, unknown> {

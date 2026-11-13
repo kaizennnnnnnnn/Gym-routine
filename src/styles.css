@@ -3,7 +3,7 @@
 @layer base {
   :root { font-family: 'DM Sans Variable', sans-serif; color: #252a23; background: #f5f5ee; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; --ink: #252a23; --muted: #70746b; --line: #dedfd5; --accent: #d5f35b; --paper: #f5f5ee; }
   * { box-sizing: border-box; }
-  body { margin: 0; min-width: 320px; }
+  body { margin: 0; min-width: 0; }
   button, input { font: inherit; }
   button { color: inherit; cursor: pointer; }
   button, a, input { -webkit-tap-highlight-color: transparent; }
@@ -84,18 +84,24 @@
   .workout-meta > span { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; }
   .workout-meta .completion-text { color: #547329; }
   .exercise-list { display: grid; gap: 12px; scroll-margin-top: 20px; }
+  .exercise-group { display: grid; gap: 12px; }
+  .exercise-group + .exercise-group { margin-top: 10px; }
+  .exercise-group-heading { display: flex; align-items: center; justify-content: space-between; padding: 0 2px 2px; }
+  .exercise-group-heading h3 { font-size: 14px; font-weight: 600; }
+  .exercise-group-heading > span { font-size: 11px; color: var(--muted); }
   .exercise-card { background: #fffefa; border-radius: 10px; border: 1px solid #e3e4d9; padding: 18px 20px 14px; }
   .exercise-card.is-complete { border-color: #bacd90; }
   .exercise-card-top { display: flex; align-items: center; gap: 15px; }
   .exercise-visual { width: 63px; height: 63px; flex-shrink: 0; background: #eff1e5; color: #818c6d; display: grid; place-items: center; border-radius: 7px; position: relative; }
   .exercise-visual > svg { transform: rotate(-23deg); }
+  .exercise-visual > img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
   .exercise-visual:hover { background: #e5ebd3; }
   .mini-play { position: absolute; bottom: 5px; right: 5px; background: white; border: 1px solid #e0e4d4; color: #5f6b4e; border-radius: 50%; width: 18px; height: 18px; display: grid; place-items: center; }
   .exercise-number { font-size: 8px; letter-spacing: 1px; font-weight: 650; color: #8b907e; }
   .exercise-name { min-width: 0; }
-  .exercise-name h3 { font-size: 16px; font-weight: 600; line-height: 1.3; letter-spacing: -.25px; margin: 3px 0 5px; }
-  .exercise-name h3 button { padding: 0; text-align: left; }
-  .exercise-name h3 button:hover { color: #6c813e; }
+  .exercise-name h4 { font-size: 16px; font-weight: 600; line-height: 1.3; letter-spacing: -.25px; margin: 3px 0 5px; }
+  .exercise-name h4 button { padding: 0; text-align: left; }
+  .exercise-name h4 button:hover { color: #6c813e; }
   .exercise-name p { font-size: 10px; color: var(--muted); }
   .exercise-name p > span { margin: 0 4px; color: #c2c7b4; }
   .exercise-open { margin-left: auto; flex-shrink: 0; border: none; color: #788268; }
@@ -167,6 +173,9 @@
   .library-card { text-align: left; border: 1px solid #e0e3d7; border-radius: 10px; background: #fffefa; padding: 0; overflow: hidden; transition: border-color .15s; }
   .library-card:hover { border-color: #97a778; }
   .library-art { min-height: 149px; background: #e9eddf; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px; color: #8d9c75; }
+  .library-art.has-preview { gap: 0; }
+  .library-art > img { width: 100%; height: 125px; object-fit: cover; }
+  .library-art.has-preview .library-demo { padding: 8px 0; }
   .library-art > svg { transform: rotate(-20deg); }
   .library-card:nth-child(3n + 2) .library-art { background: #e6e9df; }
   .library-card:nth-child(3n) .library-art { background: #eff0e2; }
@@ -191,6 +200,8 @@
   .demo-placeholder strong { color: #5c6a47; font-size: 16px; font-weight: 550; }
   .demo-placeholder p { font-size: 11px; color: #7a866b; line-height: 1.6; max-width: 290px; }
   .demo-media { display: block; aspect-ratio: 16 / 10; width: 100%; background: #e9eede; border: none; border-radius: 8px; object-fit: contain; }
+  .demo-figure { margin: 0; }
+  .demo-figure figcaption { color: var(--muted); font-size: 11px; line-height: 1.5; margin-top: 9px; }
   .exercise-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 20px 0; padding: 17px 0; border-bottom: 1px solid var(--line); gap: 15px; }
   .exercise-stats dt { font-size: 11px; color: #89917d; }
   .exercise-stats dd { margin: 6px 0 0; font-size: 21px; font-weight: 500; }
@@ -213,7 +224,7 @@
     .day-bottom svg { width: 13px; }
     .exercise-card { padding: 15px; }
     .exercise-visual { width: 53px; height: 56px; }
-    .exercise-name h3 { font-size: 14px; }
+    .exercise-name h4 { font-size: 14px; }
     .exercise-card-bottom { gap: 8px; flex-wrap: wrap; }
     .rest-link { font-size: 9px; }
     .exercise-prescription { gap: 5px; }
@@ -257,10 +268,12 @@
     .today-dot { width: 4px; height: 4px; }
     .day-date { font-size: 23px; margin: 11px 0 12px; }
     .day-bottom { flex-direction: column; gap: 5px; }
-    .day-bottom > span { font-size: 7px; letter-spacing: -.2px; }
+    .day-bottom > span { font-size: 8px; letter-spacing: -.2px; white-space: normal; overflow-wrap: anywhere; line-height: 1.3; min-height: 2.6em; text-wrap: balance; }
     .day-bottom > svg { width: 14px; height: 14px; }
     .workout-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; padding-top: 24px; }
     .workout-heading h2 { font-size: 31px; }
+    .workout-heading { flex-wrap: wrap; align-items: flex-start; }
+    .workout-heading > div { width: 100%; }
     .start-button { font-size: 10px; padding: 10px 13px; min-height: 38px; }
     .selected-date { font-size: 10px; }
     .workout-focus { font-size: 11px; }
@@ -269,7 +282,7 @@
     .exercise-card { padding: 16px 15px 13px; }
     .exercise-card-top { gap: 12px; }
     .exercise-visual { width: 56px; height: 58px; }
-    .exercise-name h3 { font-size: 14px; }
+    .exercise-name h4 { font-size: 14px; }
     .exercise-name p { font-size: 9px; }
     .exercise-open { width: 26px; }
     .exercise-card-bottom { gap: 10px; margin-top: 14px; padding-top: 12px; }
@@ -326,7 +339,7 @@
     .set-tracker { gap: 4px; }
     .set-button { width: 25px; height: 27px; }
     .rest-link { padding-left: 5px; font-size: 8px; }
-    .exercise-name h3 { font-size: 13px; }
+    .exercise-name h4 { font-size: 13px; }
     .exercise-prescription { gap: 4px; }
     .exercise-prescription strong { font-size: 10px; }
     .exercise-prescription strong > span { font-size: 8px; }

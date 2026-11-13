@@ -2,7 +2,23 @@
 
 A small, mobile-friendly place to share a gym routine. Built with React, TypeScript, and Vite, ready to import into Vercel.
 
-**The current schedule and exercises are sample content.** Replace them with the actual routine before sharing it as a training plan. Demonstrations are clearly marked as pending until media is attached.
+**The weekly split and set counts come from the routine owner.** Exercise choices, rep ranges, and rest times are provisional and can be corrected later. Four exercises have generated Bacon Hair still-image previews; animations and the remaining demonstrations are pending.
+
+## Current weekly split
+
+| Day | Session | Working sets |
+| --- | --- | --- |
+| Monday | Chest and triceps | 3 exercises × 2 sets per muscle: 12 total |
+| Tuesday | Back and biceps | 3 exercises × 2 sets per muscle: 12 total |
+| Wednesday | Rest | 0 |
+| Thursday | Shoulders and forearms | 3 exercises × 2 sets per muscle: 12 total |
+| Friday | Biceps and triceps | 3 exercises × 2 sets per muscle: 12 total |
+| Saturday | Legs and calves | 5 exercises including calves × 2 sets: 10 total |
+| Sunday | Rest | 0 |
+
+Counts use each exercise's primary target muscle. Secondary involvement in compound movements is not counted twice. Workout durations are not supplied and are omitted until confirmed.
+
+The provisional exercise list uses familiar movements from the [ACE exercise library](https://www.acefitness.org/resources/everyone/exercise-library/). The owner's split and set counts are distinct from these provisional choices.
 
 ## Run locally
 
@@ -23,7 +39,7 @@ npm run preview
 
 ## Add the real routine
 
-Edit `src/data/routine.ts`. The exercise library stores exercise details. The weekly plan assigns them to days, with `type: 'rest'` for days off. Keep exercise IDs and day IDs stable so saved progress stays attached to the right exercise and day. Increase the progress storage version in `src/lib/progress.ts` if replacing the whole routine and wanting a clean start.
+Edit `src/data/routine.ts`. The exercise library stores exercise details. The weekly plan assigns them to days, with `type: 'rest'` for days off. Keep exercise IDs and day IDs stable so saved progress stays attached to the right exercise and day. Increase `routineMeta.progressVersion` when replacing the whole routine and wanting a clean start. This split uses `v2`, separate from the original sample plan's saved progress.
 
 Each exercise has a name, muscle group, equipment, sets, reps, rest in seconds, notes, and optional media:
 
@@ -33,7 +49,7 @@ Each exercise has a name, muscle group, equipment, sets, reps, rest in seconds, 
   name: 'Exercise name',
   muscleGroup: 'Muscle group',
   equipment: 'Equipment',
-  sets: 3,
+  sets: 2,
   reps: '8–10',
   restSeconds: 90,
   notes: 'Your technique cues and training notes.',
@@ -43,7 +59,7 @@ Each exercise has a name, muscle group, equipment, sets, reps, rest in seconds, 
 
 The numbers above are examples of the data format. For a GIF or image, use `kind: 'image'`, a `src`, and descriptive `alt` text. For YouTube, use `kind: 'youtube'` with a video URL or video ID. YouTube embeds load only after the viewer presses **Load video**. Put local media in `public/demos/`; only use demonstrations you have permission to share. Add captions to videos with speech.
 
-When the real routine is ready, set `routineMeta.isSample` to `false`, update its description, and replace sample notes and durations. The preview banner and sample labels will disappear automatically.
+When the exercise choices, reps, and rest times are confirmed, set `routineMeta.hasPlaceholderExercises` to `false`, update its description, and replace provisional notes. The draft banner and provisional labels will disappear automatically. `shortTitle` supplies a compact day label; set `durationMinutes` to `null` when duration is unconfirmed. Media can include an optional caption, used for the current still-image concepts.
 
 ## Behavior
 

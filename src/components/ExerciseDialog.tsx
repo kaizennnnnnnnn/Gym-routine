@@ -96,7 +96,7 @@ function ExerciseMedia({ exercise }: { exercise: Exercise }) {
   if (!src) return <DemoPlaceholder failed />;
 
   if (media.kind === 'image') {
-    return <img className="demo-media" src={src} alt={media.alt || `${exercise.name} demonstration`} onError={() => setFailed(true)} />;
+    return <figure className="demo-figure"><img className="demo-media" src={src} alt={media.alt || `${exercise.name} demonstration`} onError={() => setFailed(true)} />{media.caption && <figcaption>{media.caption}</figcaption>}</figure>;
   }
 
   return (
