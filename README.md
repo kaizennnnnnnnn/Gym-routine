@@ -75,9 +75,17 @@ When the exercise choices, reps, and rest times are confirmed, set `routineMeta.
 - Share copies the current site URL, with a manual-copy fallback. Deploy the app before sharing a localhost link with a friend.
 - Reset day asks before clearing that day's completed sets.
 
+## Deploy to GitHub Pages
+
+The repository's Pages source must be **GitHub Actions**. `.github/workflows/deploy-pages.yml` installs dependencies, runs tests, builds the app, and publishes only `dist` on each push to `main`.
+
+The workflow sets `GITHUB_PAGES=true` so Vite and the public-image resolver use `/Gym-routine/`. The published URL is [the gym routine site](https://kaizennnnnnnnn.github.io/Gym-routine/). Publishing the repository's source directly will show a blank page because a browser cannot run the unbuilt TypeScript entry point.
+
 ## Deploy to Vercel
 
 Import this GitHub repository in Vercel. Use the **Vite** framework preset, `npm run build` as the build command, and `dist` as the output directory. The repository root is the project root. No backend, account setup, API keys, or environment variables are required. Deployment is left to the repository owner.
+
+`vercel.json` declares these settings explicitly. Vercel builds use `/` as their asset base; `GITHUB_PAGES` is set only by the Pages workflow.
 
 ## Project structure
 
@@ -89,6 +97,7 @@ src/components/ExerciseViewer.tsx Large inline selected-exercise viewer
 src/components/RestTimer.tsx      Rest timer controls
 src/lib/progress.ts               Week keys and saved set progress
 src/lib/timer.ts                  Countdown helpers
+src/lib/assets.ts                 Root and repository-subfolder asset URLs
 src/styles.css                   Responsive styling
 public/                          Favicon, Bacon Hair stills, and gym hero image
 ```

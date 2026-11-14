@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import { ArrowUpRightIcon, BarbellIcon, PlayIcon } from '@phosphor-icons/react';
 import type { Exercise } from '../data/routine';
+import { assetUrl } from '../lib/assets';
 
 type ExerciseViewerProps = {
   exercise: Exercise;
@@ -10,7 +11,7 @@ type ExerciseViewerProps = {
 function safeMediaSource(source: string): string | null {
   if (!source.trim()) return null;
   try {
-    const url = new URL(source, window.location.href);
+    const url = new URL(assetUrl(source), window.location.href);
     const local = url.origin === window.location.origin;
     if (url.username || url.password) return null;
     return url.protocol === 'https:' || (local && url.protocol === 'http:') ? url.href : null;

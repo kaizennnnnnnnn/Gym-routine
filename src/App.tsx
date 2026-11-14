@@ -4,6 +4,7 @@ import { exerciseLibrary, routineMeta, weekPlan } from './data/routine';
 import type { DayPlan, Exercise } from './data/routine';
 import { countCompletedSets, countTotalSets, getStorageKey, getWeekKey, sanitizeProgress, toggleSet } from './lib/progress';
 import type { Progress } from './lib/progress';
+import { assetUrl } from './lib/assets';
 import ExerciseDialog from './components/ExerciseDialog';
 import ExerciseViewer from './components/ExerciseViewer';
 import RestTimer from './components/RestTimer';
@@ -44,7 +45,7 @@ function ExerciseRow({ exercise, index, completed, active, onToggle, onSelect, o
   return <article className="exercise-row" data-active={active}>
     <span className="row-number" aria-hidden="true">{index + 1}</span>
     <button className="row-preview" onClick={onSelect} aria-label={`Show ${exercise.name} preview`} aria-pressed={active}>
-      {exercise.media?.kind === 'image' ? <img src={exercise.media.src} alt="" loading="lazy" /> : <BarbellIcon size={29} weight="light" aria-hidden="true" />}
+      {exercise.media?.kind === 'image' ? <img src={assetUrl(exercise.media.src)} alt="" loading="lazy" /> : <BarbellIcon size={29} weight="light" aria-hidden="true" />}
     </button>
     <div className="row-copy">
       <h4><button onClick={onSelect}>{exercise.name}</button></h4>
@@ -161,7 +162,7 @@ function ExerciseLibrary({ onOpen }: { onOpen: (exercise: Exercise) => void }) {
     <div className="library-heading"><div><h2 id="library-title">The exercise library.</h2><p>{routineMeta.hasPlaceholderExercises ? 'Your movements, collected here. Exercise choices are still provisional.' : 'A guide for every movement in your routine.'}</p></div><label className="search-field"><MagnifyingGlassIcon size={19} aria-hidden="true" /><input type="search" aria-label="Search exercises" placeholder="Find an exercise…" value={query} onChange={(event) => setQuery(event.target.value)} /></label></div>
     <div className="library-filters" aria-label="Filter by muscle group">{groups.map((group) => <button key={group} aria-pressed={group === filter} className={group === filter ? 'active' : ''} onClick={() => setFilter(group)}>{group}</button>)}</div>
     <p className="library-count" role="status">{filtered.length} {routineMeta.hasPlaceholderExercises ? 'provisional ' : ''}{filtered.length === 1 ? 'exercise' : 'exercises'}</p>
-    <div className="library-grid">{filtered.map((exercise) => <button key={exercise.id} className="library-card" onClick={() => onOpen(exercise)}><div className="library-art">{exercise.media?.kind === 'image' ? <img src={exercise.media.src} alt="" loading="lazy" /> : <BarbellIcon size={52} weight="light" aria-hidden="true" />}</div><div className="library-card-content"><span>{exercise.muscleGroup}<span className="library-demo">{exercise.media?.kind === 'image' ? 'Image preview' : exercise.media ? 'Demonstration' : 'Demo pending'}</span></span><h3>{exercise.name}</h3><p>{exercise.equipment}<ArrowUpRightIcon size={18} aria-hidden="true" /></p></div></button>)}</div>
+    <div className="library-grid">{filtered.map((exercise) => <button key={exercise.id} className="library-card" onClick={() => onOpen(exercise)}><div className="library-art">{exercise.media?.kind === 'image' ? <img src={assetUrl(exercise.media.src)} alt="" loading="lazy" /> : <BarbellIcon size={52} weight="light" aria-hidden="true" />}</div><div className="library-card-content"><span>{exercise.muscleGroup}<span className="library-demo">{exercise.media?.kind === 'image' ? 'Image preview' : exercise.media ? 'Demonstration' : 'Demo pending'}</span></span><h3>{exercise.name}</h3><p>{exercise.equipment}<ArrowUpRightIcon size={18} aria-hidden="true" /></p></div></button>)}</div>
     {filtered.length === 0 && <div className="empty-state"><MagnifyingGlassIcon size={35} weight="light" aria-hidden="true" /><h3>No exercises found</h3><p>Try another name, muscle group, or piece of equipment.</p><button className="button button-dark" onClick={() => { setQuery(''); setFilter('All'); }}>Clear filters</button></div>}
   </section>;
 }
@@ -202,7 +203,7 @@ export default function App() {
     <a className="skip-link" href="#main">Skip to routine</a>
     <header className="site-header"><button className="wordmark" onClick={() => setPage('week')} aria-label="SET home">SET.</button><nav aria-label="Main navigation"><button className={page === 'week' ? 'active' : ''} aria-current={page === 'week' ? 'page' : undefined} onClick={() => setPage('week')}>My week</button><button className={page === 'library' ? 'active' : ''} aria-label="Exercise library" aria-current={page === 'library' ? 'page' : undefined} onClick={() => setPage('library')}><span className="nav-long">Exercise library</span><span className="nav-short">Library</span></button></nav><button className="share-button" onClick={share} aria-label="Share routine"><ShareNetworkIcon size={17} aria-hidden="true" /><span>Share routine</span></button></header>
     <main id="main">
-      <section className="club-intro" aria-labelledby="page-title"><div className="hero-copy"><span className="hero-eyebrow">YOUR WEEKLY ROUTINE</span><h1 id="page-title">The daily practice.</h1><p>A little structure. A stronger week.</p></div><img className="hero-image" src="/images/training-club-gym.png" width="2172" height="724" alt="An empty Roblox-style weight room with warm window light, a green bench, and neatly arranged dumbbells." fetchPriority="high" /></section>
+      <section className="club-intro" aria-labelledby="page-title"><div className="hero-copy"><span className="hero-eyebrow">YOUR WEEKLY ROUTINE</span><h1 id="page-title">The daily practice.</h1><p>A little structure. A stronger week.</p></div><img className="hero-image" src={assetUrl('/images/training-club-gym.png')} width="2172" height="724" alt="An empty Roblox-style weight room with warm window light, a green bench, and neatly arranged dumbbells." fetchPriority="high" /></section>
       {routineMeta.hasPlaceholderExercises && <div className="draft-notice"><InfoIcon size={15} aria-hidden="true" /><p><strong>Schedule confirmed.</strong> Exercise choices, reps and rest times are still provisional.</p></div>}
       {page === 'week' ? <WeekView key={currentWeek} start={start} initialIndex={preferredDay} onWeekChange={changeWeek} onOpen={setExercise} /> : <ExerciseLibrary onOpen={setExercise} />}
     </main>
